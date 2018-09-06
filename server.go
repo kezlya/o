@@ -22,13 +22,9 @@ type Direction int
 
 const (
 	Up Direction = iota
-	UpRight
 	Right
-	DownRight
 	Down
-	DownLeftf
 	Left
-	UpLeft
 )
 
 type Hive struct {
