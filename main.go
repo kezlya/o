@@ -5,57 +5,62 @@ import (
 	"time"
 )
 
+type BotOder struct {
+	Action    string
+	Direction string
+}
+
 func main() {
 	StartServer()
 }
 
-func whatToDo(hive *Hive) ActDir {
-	actions := make(ActDir)
+func whatToDo(hive *Hive) map[int]BotOder {
+	actions := make(map[int]BotOder)
 	rand.Seed(time.Now().UnixNano())
 	for id, ant := range hive.Ants {
 
 		//Default action if ant don't see Food
-		action := Move
+		action := "move"
 
 		//Default direction is Random
-		direction := Direction(rand.Intn(4))
-
+		direction := []string{"u","d","l","r"}[rand.Intn(4)]
 		food, hive, dir  := lookAround(ant, hive.Map)
 
 		if hive && ant.Payload>0{
 			direction = dir
-			action = Unload
+			action = "unload"
 		}else if food{
 			direction = dir
-			if ant.Health<9{action = Eat}
-			if ant.Payload<9 {action = Load}
+			if ant.Health<9{action = "eat"}
+			if ant.Payload<9 {action = "load"}
 		}
 
-		actions[id] = int(action)*10 + int(direction)
+		actions[id] = BotOder{action, direction}
+		//time.Sleep(400*time.Millisecond)
 	}
 
 	return actions
 }
 
-func lookAround(ant *Ant, world *Map)(food, hive bool, dir Direction){
+func lookAround(ant *Ant, world *Map)(food, hive bool, dir string){
 
 	if ant.Y > 0 {
-		dir = Up
+		dir = "u"
 		food,hive = iSee(ant.Y-1,ant.X,world)
 	}
 	
 	if ant.Y < world.Height-1{
-		dir = Down
+		dir = "d"
 		food,hive = iSee(ant.Y+1,ant.X,world)
 	}
 
 	if ant.X < world.Width-1{
-		dir = Right
+		dir = "r"
 		food,hive = iSee(ant.Y,ant.X+1,world)
 	}
 
 	if ant.X >0{
-		dir = Left
+		dir = "l"
 		food,hive = iSee(ant.Y,ant.X-1,world)
 	}
 

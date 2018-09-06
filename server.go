@@ -8,24 +8,6 @@ import (
 	"fmt"
 )
 
-type Action int
-
-const (
-	Nothing Action = iota
-	Move
-	Load
-	Unload
-	Eat
-)
-
-type Direction int
-
-const (
-	Up Direction = iota
-	Right
-	Down
-	Left
-)
 
 type Hive struct {
 	Id   string
@@ -66,26 +48,8 @@ type Ant struct {
 	Payload uint8
 	X       uint8
 	Y       uint8
-	Event
 }
 
-type Event uint8
-
-const (
-	Good Event = iota
-	Birth
-	NoAction
-	Slow
-	BadMove
-	BadLoad
-	BadUnload
-	BadEat
-	Collision
-	Error
-	Death
-)
-
-type ActDir map[int]int
 
 func StartServer(){
 	http.HandleFunc("/", handler)
