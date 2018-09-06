@@ -18,20 +18,18 @@ func whatToDo(hive *Hive) ActDir {
 		action := Move
 
 		//Default direction is Random
-		direction := Direction(rand.Intn(4))
+		//direction := Direction(rand.Intn(4))
 
 		food, hive, dir  := lookAround(ant, hive.Map)
 
 		if hive && ant.Payload>0{
-			direction = dir
 			action = Unload
 		}else if food{
-			direction = dir
 			if ant.Health<9{action = Eat}
 			if ant.Payload<9 {action = Load}
 		}
 
-		actions[id] = int(action)*10 + int(direction)
+		actions[id] = uint8(int(action)*10 + int(dir))
 	}
 
 	return actions
@@ -43,7 +41,7 @@ func lookAround(ant *Ant, world *Map)(food, hive bool, dir Direction){
 		dir = Up
 		food,hive = iSee(ant.Y-1,ant.X,world)
 	}
-	
+
 	if ant.Y < world.Height-1{
 		dir = Down
 		food,hive = iSee(ant.Y+1,ant.X,world)
