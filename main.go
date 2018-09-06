@@ -71,7 +71,7 @@ func iSee(y,x uint8, world *Map) (food, hive bool) {
 	if world.Cells[y][x].Food>0{
 		food = true
 	}
-	if world.Cells[y][x].CellType > 2{
+	if world.Cells[y][x].CellType > 0 && world.Cells[y][x].CellType <7{
 		hive = true
 	}
 	return
