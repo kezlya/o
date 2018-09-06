@@ -89,7 +89,7 @@ const (
 	Death
 )
 
-type ActDir map[int]uint8
+type ActDir map[int]int
 
 func StartServer(){
 	http.HandleFunc("/", handler)
