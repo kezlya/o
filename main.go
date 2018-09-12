@@ -6,9 +6,26 @@ import (
 )
 
 type BotOder struct {
-	Act    string
-	Dir string
+	Act
+	Dir
 }
+
+type Act string
+
+const (
+	Move   Act = "move"
+	Load   Act = "load"
+	Unload Act = "unload"
+	Eat    Act = "eat"
+)
+
+type Dir string
+const (
+	Up    Dir = "up"
+	Right Dir = "right"
+	Down  Dir = "down"
+	Left  Dir = "left"
+)
 
 func main() {
 	StartServer()
@@ -20,19 +37,19 @@ func whatToDo(hive *Hive) map[int]BotOder {
 	for id, ant := range hive.Ants {
 
 		//Default action if ant don't see Food
-		action := "move"
+		action := Move
 
 		//Default direction is Random
-		direction := []string{"up","down","left","right"}[rand.Intn(4)]
+		direction := []Dir{Up,Down,Left,Right}[rand.Intn(4)]
 		food, hive, dir  := lookAround(ant, hive.Map)
 
 		if hive && ant.Payload>0{
 			direction = dir
-			action = "unload"
+			action = Unload
 		}else if food{
 			direction = dir
-			if ant.Health<9{action = "eat"}
-			if ant.Payload<9 {action = "load"}
+			if ant.Health<9{action =Eat}
+			if ant.Payload<9 {action = Load}
 		}
 
 		actions[id] = BotOder{action, direction}
@@ -42,25 +59,25 @@ func whatToDo(hive *Hive) map[int]BotOder {
 	return actions
 }
 
-func lookAround(ant *Ant, world *Map)(food, hive bool, dir string){
+func lookAround(ant *Ant, world *Map)(food, hive bool, dir Dir){
 
 	if ant.Y > 0 {
-		dir = "u"
+		dir = Up
 		food,hive = iSee(ant.Y-1,ant.X,world)
 	}
 	
 	if ant.Y < world.Height-1{
-		dir = "d"
+		dir = Down
 		food,hive = iSee(ant.Y+1,ant.X,world)
 	}
 
 	if ant.X < world.Width-1{
-		dir = "r"
+		dir = Right
 		food,hive = iSee(ant.Y,ant.X+1,world)
 	}
 
 	if ant.X >0{
-		dir = "l"
+		dir =Left
 		food,hive = iSee(ant.Y,ant.X-1,world)
 	}
 
