@@ -20,6 +20,7 @@ const (
 )
 
 type Dir string
+
 const (
 	Up    Dir = "up"
 	Right Dir = "right"
@@ -40,16 +41,23 @@ func whatToDo(hive *Hive) map[int]BotOder {
 		action := Move
 
 		//Default direction is Random
-		direction := []Dir{Up,Down,Left,Right}[rand.Intn(4)]
-		food, hive, dir  := lookAround(ant, hive.Map)
+		direction := []Dir{Up, Down, Left, Right}[rand.Intn(4)]
+		food, hive, dir := lookAround(ant, hive.Map)
 
-		if hive && ant.Payload>0{
+		if hive {
+			if ant.Payload > 0 {
+				direction = dir
+				action = Unload
+			}
+
+		} else if food {
 			direction = dir
-			action = Unload
-		}else if food{
-			direction = dir
-			if ant.Health<9{action =Eat}
-			if ant.Payload<9 {action = Load}
+			if ant.Health < 9 {
+				action = Eat
+			}
+			if ant.Payload < 9 {
+				action = Load
+			}
 		}
 
 		actions[id] = BotOder{action, direction}
@@ -59,36 +67,36 @@ func whatToDo(hive *Hive) map[int]BotOder {
 	return actions
 }
 
-func lookAround(ant *Ant, world *Map)(food, hive bool, dir Dir){
+func lookAround(ant *Ant, world *Map) (food, hive bool, dir Dir) {
 
 	if ant.Y > 0 {
 		dir = Up
-		food,hive = iSee(ant.Y-1,ant.X,world)
+		food, hive = iSee(ant.Y-1, ant.X, world)
 	}
-	
-	if ant.Y < world.Height-1{
+
+	if ant.Y < world.Height-1 {
 		dir = Down
-		food,hive = iSee(ant.Y+1,ant.X,world)
+		food, hive = iSee(ant.Y+1, ant.X, world)
 	}
 
-	if ant.X < world.Width-1{
+	if ant.X < world.Width-1 {
 		dir = Right
-		food,hive = iSee(ant.Y,ant.X+1,world)
+		food, hive = iSee(ant.Y, ant.X+1, world)
 	}
 
-	if ant.X >0{
-		dir =Left
-		food,hive = iSee(ant.Y,ant.X-1,world)
+	if ant.X > 0 {
+		dir = Left
+		food, hive = iSee(ant.Y, ant.X-1, world)
 	}
 
 	return
 }
 
-func iSee(y,x uint8, world *Map) (food, hive bool) {
-	if world.Cells[y][x].Food>0{
+func iSee(y, x uint8, world *Map) (food, hive bool) {
+	if world.Cells[y][x].Food > 0 {
 		food = true
 	}
-	if world.Cells[y][x].CellType > 0 && world.Cells[y][x].CellType <7{
+	if world.Cells[y][x].CellType > 0 && world.Cells[y][x].CellType < 7 {
 		hive = true
 	}
 	return
