@@ -81,13 +81,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	actions := whatToDo(&hive)
-	fmt.Println(actions)
 
 	output, err := json.Marshal(actions)
 	if err != nil {
 		http.Error(w, err.Error(), 504)
 		return
 	}
+	fmt.Println(string(output))
 
 	w.Header().Set("content-type", "application/json")
 	w.Write(output)

@@ -6,8 +6,8 @@ import (
 )
 
 type BotOder struct {
-	Action    string
-	Direction string
+	Act    string
+	Dir string
 }
 
 func main() {
@@ -23,7 +23,7 @@ func whatToDo(hive *Hive) map[int]BotOder {
 		action := "move"
 
 		//Default direction is Random
-		direction := []string{"u","d","l","r"}[rand.Intn(4)]
+		direction := []string{"up","down","left","right"}[rand.Intn(4)]
 		food, hive, dir  := lookAround(ant, hive.Map)
 
 		if hive && ant.Payload>0{
