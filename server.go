@@ -1,45 +1,30 @@
 package main
 
 import (
-	"net/http"
-	"log"
-	"io/ioutil"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 )
 
-
 type Hive struct {
-	Id   string
-	Skin uint8
-	Ox   uint8
-	Oy   uint8
-	Ants map[int]*Ant
-	Map  *Map
+	Username string
+	Ants     map[int]*Ant
+	Map      *Map
 }
 
 type Map struct {
-	Width     uint8
-	Height    uint8
-	HiveLimit uint8
-	Cells     [][]*Cell
+	Width  uint8
+	Height uint8
+	Cells  [][]*Cell
 }
 
 type Cell struct {
 	Food uint8
-	CellType
+	Ant  string
+	Hive string
 }
-
-type CellType uint8
-
-const (
-	Dark CellType = iota
-	Grass
-	HillBump
-	HillConer
-	HillHalf
-	HillThird
-)
 
 type Ant struct {
 	Wasted  int
@@ -48,10 +33,10 @@ type Ant struct {
 	Payload uint8
 	X       uint8
 	Y       uint8
+	Event   string
 }
 
-
-func StartServer(){
+func StartServer() {
 	http.HandleFunc("/", handler)
 	err := http.ListenAndServe(":7070", nil)
 	if err != nil {
@@ -73,6 +58,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var hive Hive
+	//fmt.Println(string(data))
 	err = json.Unmarshal(data, &hive)
 	if err != nil {
 		fmt.Println("Fail to convrt json to object", err)
