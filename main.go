@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"math/rand"
 	"time"
 )
@@ -33,9 +32,13 @@ func main() {
 	StartServer()
 }
 
+var username string
+
 func whatToDo(hive *Hive) map[int]BotOder {
+	username = hive.Username
 	actions := make(map[int]BotOder)
 	rand.Seed(time.Now().UnixNano())
+
 	for id, ant := range hive.Ants {
 
 		//Default action if ant don't see Food
@@ -62,8 +65,9 @@ func whatToDo(hive *Hive) map[int]BotOder {
 		}
 
 		actions[id] = BotOder{action, direction}
-		//time.Sleep(400*time.Millisecond)
+
 	}
+	//time.Sleep(400 * time.Millisecond)
 
 	return actions
 }
@@ -72,37 +76,32 @@ func lookAround(ant *Ant, world *Map) (food, hive bool, dir Dir) {
 
 	if ant.Y > 0 {
 		dir = Up
-		food, hive = iSee(ant.Y-1, ant.X, world)
+		food, hive = iSee(world.Cells[ant.Y-1][ant.X])
 	}
 
 	if ant.Y < world.Height-1 {
 		dir = Down
-		food, hive = iSee(ant.Y+1, ant.X, world)
+		food, hive = iSee(world.Cells[ant.Y+1][ant.X])
 	}
 
 	if ant.X < world.Width-1 {
 		dir = Right
-		food, hive = iSee(ant.Y, ant.X+1, world)
+		food, hive = iSee(world.Cells[ant.Y][ant.X+1])
 	}
 
 	if ant.X > 0 {
 		dir = Left
-		food, hive = iSee(ant.Y, ant.X-1, world)
+		food, hive = iSee(world.Cells[ant.Y][ant.X-1])
 	}
 
 	return
 }
 
-func iSee(y, x uint8, world *Map) (food, hive bool) {
-	fmt.Println(x, y, world.Width, world.Height, world.Cells[y][x])
-	if world.Cells[y][x] == nil {
-		return
-	}
-
-	if world.Cells[y][x].Food > 0 {
+func iSee(cell *Cell) (food, hive bool) {
+	if cell.Food > 0 {
 		food = true
 	}
-	if world.Cells[y][x].Hive != "" {
+	if cell.Hive == "username" {
 		hive = true
 	}
 	return

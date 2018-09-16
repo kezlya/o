@@ -15,24 +15,24 @@ type Hive struct {
 }
 
 type Map struct {
-	Width  uint8
-	Height uint8
+	Width  int
+	Height int
 	Cells  [][]*Cell
 }
 
 type Cell struct {
-	Food uint8
-	Ant  string
-	Hive string
+	Food int    `json:"food,omitempty"`
+	Hive string `json:"hive,omitempty"`
+	Ant  string `json:"ant,omitempty"`
 }
 
 type Ant struct {
 	Wasted  int
-	Age     uint8
-	Health  uint8
-	Payload uint8
-	X       uint8
-	Y       uint8
+	Age     int
+	Health  int
+	Payload int
+	X       int
+	Y       int
 	Event   string
 }
 
