@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math/rand"
 	"time"
 )
@@ -93,6 +94,11 @@ func lookAround(ant *Ant, world *Map) (food, hive bool, dir Dir) {
 }
 
 func iSee(y, x uint8, world *Map) (food, hive bool) {
+	fmt.Println(x, y, world.Width, world.Height, world.Cells[y][x])
+	if world.Cells[y][x] == nil {
+		return
+	}
+
 	if world.Cells[y][x].Food > 0 {
 		food = true
 	}
