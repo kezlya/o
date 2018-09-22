@@ -18,20 +18,19 @@ func whatToDo(hive *Hive) map[int]BotOder {
 	for id, ant := range hive.Ants {
 		antPoint := point{y: ant.Y, x: ant.X}
 
-		if dir, yes := antPoint.isMealAround(hive.Map); yes {
-			if ant.Health < 9 {
-				actions[id] = BotOder{Eat, dir}
-				continue
-			}
-			if ant.Payload < 9 {
-				actions[id] = BotOder{Load, dir}
-				continue
-			}
+		homeDir, isHome := antPoint.isHomeAround(hive.Map)
+		if isHome && ant.Payload > 0 {
+			actions[id] = BotOder{Unload, homeDir}
+			continue
 		}
 
-		if dir, yes := antPoint.isHomeAround(hive.Map); yes {
-			if ant.Payload > 0 {
-				actions[id] = BotOder{Unload, dir}
+		if mealDir, isMeal := antPoint.isMealAround(hive.Map); isMeal {
+			if ant.Health < 9 {
+				actions[id] = BotOder{Eat, mealDir}
+				continue
+			}
+			if ant.Payload < 9 && !(isHome && homeDir == mealDir) {
+				actions[id] = BotOder{Load, mealDir}
 				continue
 			}
 		}
