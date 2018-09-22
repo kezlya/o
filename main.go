@@ -1,108 +1,157 @@
 package main
 
-import (
-	"math/rand"
-	"time"
-)
-
-type BotOder struct {
-	Act
-	Dir
-}
-
-type Act string
-
-const (
-	Move   Act = "move"
-	Load   Act = "load"
-	Unload Act = "unload"
-	Eat    Act = "eat"
-)
-
-type Dir string
-
-const (
-	Up    Dir = "up"
-	Right Dir = "right"
-	Down  Dir = "down"
-	Left  Dir = "left"
-)
-
 func main() {
 	StartServer()
 }
 
 var username string
+var food map[point]int
+var home []point
 
 func whatToDo(hive *Hive) map[int]BotOder {
 	username = hive.Username
+	hive.Map.food()
+	hive.Map.home()
+
 	actions := make(map[int]BotOder)
-	rand.Seed(time.Now().UnixNano())
 
 	for id, ant := range hive.Ants {
+		antPoint := point{y: ant.Y, x: ant.X}
 
-		//Default action if ant don't see Food
-		action := Move
-
-		//Default direction is Random
-		direction := []Dir{Up, Down, Left, Right}[rand.Intn(4)]
-		food, hive, dir := lookAround(ant, hive.Map)
-
-		if hive {
-			if ant.Payload > 0 {
-				direction = dir
-				action = Unload
-			}
-
-		} else if food {
-			direction = dir
+		if dir, yes := antPoint.isMealAround(hive.Map); yes {
 			if ant.Health < 9 {
-				action = Eat
+				actions[id] = BotOder{Eat, dir}
+				continue
 			}
 			if ant.Payload < 9 {
-				action = Load
+				actions[id] = BotOder{Load, dir}
+				continue
 			}
 		}
 
-		actions[id] = BotOder{action, direction}
+		if dir, yes := antPoint.isHomeAround(hive.Map); yes {
+			if ant.Payload > 0 {
+				actions[id] = BotOder{Unload, dir}
+				continue
+			}
+		}
 
+		if ant.Payload < 9 {
+			actions[id] = BotOder{Move, antPoint.towardsFood()}
+			continue
+		}
+
+		actions[id] = BotOder{Move, antPoint.towardsHome()}
 	}
-	//time.Sleep(400 * time.Millisecond)
 
 	return actions
 }
 
-func lookAround(ant *Ant, world *Map) (food, hive bool, dir Dir) {
-
-	if ant.Y > 0 {
-		dir = Up
-		food, hive = iSee(world.Cells[ant.Y-1][ant.X])
+func (m *Map) food() {
+	food = make(map[point]int)
+	for y, row := range m.Cells {
+		for x, c := range row {
+			if c.Food > 0 {
+				food[point{y: y, x: x}] = c.Food
+			}
+		}
 	}
+}
 
-	if ant.Y < world.Height-1 {
-		dir = Down
-		food, hive = iSee(world.Cells[ant.Y+1][ant.X])
+func (m *Map) home() {
+	food = make(map[point]int)
+	for y, row := range m.Cells {
+		for x, c := range row {
+			if c.Hive == username {
+				home = append(home, point{y: y, x: x})
+			}
+		}
 	}
+}
 
-	if ant.X < world.Width-1 {
-		dir = Right
-		food, hive = iSee(world.Cells[ant.Y][ant.X+1])
+func (p *point) towardsFood() Dir {
+	effort := 10000000
+	dir := Up
+	for to := range food {
+		ticks := p.distance(to)
+		if ticks < effort {
+			dir = p.move(to)
+			effort = ticks
+		}
 	}
+	return dir
+}
 
-	if ant.X > 0 {
-		dir = Left
-		food, hive = iSee(world.Cells[ant.Y][ant.X-1])
+func (p *point) towardsHome() Dir {
+	effort := 10000000
+	dir := Up
+	for _, to := range home {
+		ticks := p.distance(to)
+		if ticks < effort {
+			dir = p.move(to)
+			effort = ticks
+		}
 	}
+	return dir
+}
 
+func (p *point) isMealAround(world *Map) (d Dir, y bool) {
+	if p.y > 0 && world.Cells[p.y-1][p.x].Food > 0 {
+		return Up, true
+	}
+	if p.y < world.Height-1 && world.Cells[p.y+1][p.x].Food > 0 {
+		return Down, true
+	}
+	if p.x < world.Width-1 && world.Cells[p.y][p.x+1].Food > 0 {
+		return Right, true
+	}
+	if p.x > 0 && world.Cells[p.y][p.x-1].Food > 0 {
+		return Left, true
+	}
 	return
 }
 
-func iSee(cell *Cell) (food, hive bool) {
-	if cell.Food > 0 {
-		food = true
+func (p *point) isHomeAround(world *Map) (d Dir, y bool) {
+	if p.y > 0 && world.Cells[p.y-1][p.x].Hive == username {
+		return Up, true
 	}
-	if cell.Hive == "username" {
-		hive = true
+	if p.y < world.Height-1 && world.Cells[p.y+1][p.x].Hive == username {
+		return Down, true
+	}
+	if p.x < world.Width-1 && world.Cells[p.y][p.x+1].Hive == username {
+		return Right, true
+	}
+	if p.x > 0 && world.Cells[p.y][p.x-1].Hive == username {
+		return Left, true
 	}
 	return
+}
+
+func (from *point) distance(to point) int {
+	w, h := 0, 0
+	if from.x > to.x {
+		w = from.x - to.x
+	} else {
+		w = to.x - from.x
+	}
+	if from.y > to.y {
+		h = from.y - to.y
+	} else {
+		h = to.y - from.y
+	}
+	return w + h
+}
+
+func (from *point) move(to point) Dir {
+	if from.x > to.x {
+		return Left
+	}
+	if from.x < to.x {
+		return Right
+	}
+	if from.y > to.y {
+		return Up
+	}
+	// from.y < to.y
+	return Down
 }

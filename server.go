@@ -20,6 +20,11 @@ type Map struct {
 	Cells  [][]*Cell
 }
 
+type point struct {
+	x int
+	y int
+}
+
 type Cell struct {
 	Food int    `json:"food,omitempty"`
 	Hive string `json:"hive,omitempty"`
@@ -35,6 +40,29 @@ type Ant struct {
 	Y       int
 	Event   string
 }
+
+type BotOder struct {
+	Act
+	Dir
+}
+
+type Act string
+
+const (
+	Move   Act = "move"
+	Load   Act = "load"
+	Unload Act = "unload"
+	Eat    Act = "eat"
+)
+
+type Dir string
+
+const (
+	Up    Dir = "up"
+	Right Dir = "right"
+	Down  Dir = "down"
+	Left  Dir = "left"
+)
 
 func StartServer() {
 	http.HandleFunc("/", handler)
