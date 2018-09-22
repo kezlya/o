@@ -5,8 +5,8 @@ func main() {
 }
 
 func whatToDo(hive *Hive) map[int]BotOder {
-	food := hive.Map.food()
-	home := hive.Map.home(hive.Username)
+	food := hive.Map.getFood()
+	home := hive.Map.getHome(hive.Username)
 
 	actions := make(map[int]BotOder)
 
@@ -31,17 +31,17 @@ func whatToDo(hive *Hive) map[int]BotOder {
 		}
 
 		if ant.Payload < 9 {
-			actions[id] = BotOder{Move, antPoint.towardsFood(food)}
+			actions[id] = BotOder{Move, antPoint.towardsFood(food, hive.Map)}
 			continue
 		}
 
-		actions[id] = BotOder{Move, antPoint.towardsHome(home)}
+		actions[id] = BotOder{Move, antPoint.towardsHome(home, hive.Map)}
 	}
 
 	return actions
 }
 
-func (m *Map) food() map[point]int {
+func (m *Map) getFood() map[point]int {
 	food := make(map[point]int)
 	for y, row := range m.Cells {
 		for x, c := range row {
@@ -53,7 +53,7 @@ func (m *Map) food() map[point]int {
 	return food
 }
 
-func (m *Map) home(username string) []point {
+func (m *Map) getHome(username string) []point {
 	home := make([]point, 0)
 	for y, row := range m.Cells {
 		for x, c := range row {
@@ -65,26 +65,32 @@ func (m *Map) home(username string) []point {
 	return home
 }
 
-func (p *point) towardsFood(f map[point]int) Dir {
+func (m *Map) isCellEmpty(p point) bool {
+	return m.Cells[p.y][p.x].Food == 0 &&
+		m.Cells[p.y][p.x].Ant == "" &&
+		m.Cells[p.y][p.x].Hive == ""
+}
+
+func (p *point) towardsFood(f map[point]int, world *Map) Dir {
 	effort := 10000000
 	dir := Up
 	for to := range f {
 		ticks := p.distance(to)
 		if ticks < effort {
-			dir = p.move(to)
+			dir = p.move(to, world)
 			effort = ticks
 		}
 	}
 	return dir
 }
 
-func (p *point) towardsHome(h []point) Dir {
+func (p *point) towardsHome(h []point, world *Map) Dir {
 	effort := 10000000
 	dir := Up
 	for _, to := range h {
 		ticks := p.distance(to)
 		if ticks < effort {
-			dir = p.move(to)
+			dir = p.move(to, world)
 			effort = ticks
 		}
 	}
@@ -138,14 +144,14 @@ func (from *point) distance(to point) int {
 	return w + h
 }
 
-func (from *point) move(to point) Dir {
-	if from.x > to.x {
+func (from *point) move(to point, world *Map) Dir {
+	if from.x > to.x && world.isCellEmpty(point{x: from.x - 1, y: from.y}) {
 		return Left
 	}
-	if from.x < to.x {
+	if from.x < to.x && world.isCellEmpty(point{x: from.x + 1, y: from.y}) {
 		return Right
 	}
-	if from.y > to.y {
+	if from.y > to.y && world.isCellEmpty(point{x: from.x, y: from.y - 1}) {
 		return Up
 	}
 	// from.y < to.y
