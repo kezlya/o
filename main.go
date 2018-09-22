@@ -4,21 +4,16 @@ func main() {
 	StartServer()
 }
 
-var username string
-var food map[point]int
-var home []point
-
 func whatToDo(hive *Hive) map[int]BotOder {
-	username = hive.Username
-	hive.Map.food()
-	hive.Map.home()
+	food := hive.Map.food()
+	home := hive.Map.home(hive.Username)
 
 	actions := make(map[int]BotOder)
 
 	for id, ant := range hive.Ants {
 		antPoint := point{y: ant.Y, x: ant.X}
 
-		homeDir, isHome := antPoint.isHomeAround(hive.Map)
+		homeDir, isHome := antPoint.isHomeAround(hive.Map, hive.Username)
 		if isHome && ant.Payload > 0 {
 			actions[id] = BotOder{Unload, homeDir}
 			continue
@@ -36,18 +31,18 @@ func whatToDo(hive *Hive) map[int]BotOder {
 		}
 
 		if ant.Payload < 9 {
-			actions[id] = BotOder{Move, antPoint.towardsFood()}
+			actions[id] = BotOder{Move, antPoint.towardsFood(food)}
 			continue
 		}
 
-		actions[id] = BotOder{Move, antPoint.towardsHome()}
+		actions[id] = BotOder{Move, antPoint.towardsHome(home)}
 	}
 
 	return actions
 }
 
-func (m *Map) food() {
-	food = make(map[point]int)
+func (m *Map) food() map[point]int {
+	food := make(map[point]int)
 	for y, row := range m.Cells {
 		for x, c := range row {
 			if c.Food > 0 {
@@ -55,10 +50,11 @@ func (m *Map) food() {
 			}
 		}
 	}
+	return food
 }
 
-func (m *Map) home() {
-	food = make(map[point]int)
+func (m *Map) home(username string) []point {
+	home := make([]point, 0)
 	for y, row := range m.Cells {
 		for x, c := range row {
 			if c.Hive == username {
@@ -66,12 +62,13 @@ func (m *Map) home() {
 			}
 		}
 	}
+	return home
 }
 
-func (p *point) towardsFood() Dir {
+func (p *point) towardsFood(f map[point]int) Dir {
 	effort := 10000000
 	dir := Up
-	for to := range food {
+	for to := range f {
 		ticks := p.distance(to)
 		if ticks < effort {
 			dir = p.move(to)
@@ -81,10 +78,10 @@ func (p *point) towardsFood() Dir {
 	return dir
 }
 
-func (p *point) towardsHome() Dir {
+func (p *point) towardsHome(h []point) Dir {
 	effort := 10000000
 	dir := Up
-	for _, to := range home {
+	for _, to := range h {
 		ticks := p.distance(to)
 		if ticks < effort {
 			dir = p.move(to)
@@ -110,7 +107,7 @@ func (p *point) isMealAround(world *Map) (d Dir, y bool) {
 	return
 }
 
-func (p *point) isHomeAround(world *Map) (d Dir, y bool) {
+func (p *point) isHomeAround(world *Map, username string) (d Dir, y bool) {
 	if p.y > 0 && world.Cells[p.y-1][p.x].Hive == username {
 		return Up, true
 	}
