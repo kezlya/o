@@ -9,9 +9,9 @@ import (
 )
 
 type Hive struct {
-	Username string
-	Ants     map[int]*Ant
-	Map      *Map
+	Id   string
+	Ants map[int]*Ant
+	Map  *Map
 }
 
 type Map struct {

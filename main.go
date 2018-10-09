@@ -6,14 +6,14 @@ func main() {
 
 func whatToDo(hive *Hive) map[int]BotOder {
 	food := hive.Map.getFood()
-	home := hive.Map.getHome(hive.Username)
+	home := hive.Map.getHome(hive.Id)
 
 	actions := make(map[int]BotOder)
 
 	for id, ant := range hive.Ants {
 		antPoint := point{y: ant.Y, x: ant.X}
 
-		homeDir, isHome := antPoint.isHomeAround(hive.Map, hive.Username)
+		homeDir, isHome := antPoint.isHomeAround(hive.Map, hive.Id)
 		if isHome && ant.Payload > 0 {
 			actions[id] = BotOder{Unload, homeDir}
 			continue
@@ -53,11 +53,11 @@ func (m *Map) getFood() map[point]int {
 	return food
 }
 
-func (m *Map) getHome(username string) []point {
+func (m *Map) getHome(id string) []point {
 	home := make([]point, 0)
 	for y, row := range m.Cells {
 		for x, c := range row {
-			if c.Hive == username {
+			if c.Hive == id {
 				home = append(home, point{y: y, x: x})
 			}
 		}
@@ -113,17 +113,17 @@ func (p *point) isMealAround(world *Map) (d Dir, y bool) {
 	return
 }
 
-func (p *point) isHomeAround(world *Map, username string) (d Dir, y bool) {
-	if p.y > 0 && world.Cells[p.y-1][p.x].Hive == username {
+func (p *point) isHomeAround(world *Map, id string) (d Dir, y bool) {
+	if p.y > 0 && world.Cells[p.y-1][p.x].Hive == id {
 		return Up, true
 	}
-	if p.y < world.Height-1 && world.Cells[p.y+1][p.x].Hive == username {
+	if p.y < world.Height-1 && world.Cells[p.y+1][p.x].Hive == id {
 		return Down, true
 	}
-	if p.x < world.Width-1 && world.Cells[p.y][p.x+1].Hive == username {
+	if p.x < world.Width-1 && world.Cells[p.y][p.x+1].Hive == id {
 		return Right, true
 	}
-	if p.x > 0 && world.Cells[p.y][p.x-1].Hive == username {
+	if p.x > 0 && world.Cells[p.y][p.x-1].Hive == id {
 		return Left, true
 	}
 	return
