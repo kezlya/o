@@ -1,7 +1,7 @@
 package main
 
 func main() {
-	StartServer()
+	StartS asdfasdfasdf   erver() //Breaking code
 }
 
 func whatToDo(hive *Hive) map[int]BotOder {
