@@ -42,17 +42,17 @@ type Ant struct {
 }
 
 type BotOder struct {
-	ActBreak
+	Act
 	Dir
 }
 
-type ActBreak string
+type Act string
 
 const (
-	Move   ActBreak = "move"
-	Load   ActBreak = "load"
-	Unload ActBreak = "unload"
-	Eat    ActBreak = "eat"
+	Move   Act = "move"
+	Load   Act = "load"
+	Unload Act = "unload"
+	Eat    Act = "eat"
 )
 
 type Dir string
