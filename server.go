@@ -49,19 +49,19 @@ type BotOder struct {
 type Act string
 
 const (
-	Move   Act = "move1"
-	Load   Act = "load1"
-	Unload Act = "unload1"
-	Eat    Act = "eat1"
+	Move   Act = "move"
+	Load   Act = "load"
+	Unload Act = "unload"
+	Eat    Act = "eat"
 )
 
 type Dir string
 
 const (
-	Up    Dir = "up1"
-	Right Dir = "right1"
-	Down  Dir = "down1"
-	Left  Dir = "left1"
+	Up    Dir = "up"
+	Right Dir = "right"
+	Down  Dir = "down"
+	Left  Dir = "left"
 )
 
 func StartServer() {
