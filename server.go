@@ -104,5 +104,5 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(string(output))
 
 	w.Header().Set("content-type", "application/json")
-	w.Write([]byte("7"))
+	w.Write(output)
 }
