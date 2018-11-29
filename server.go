@@ -39,6 +39,10 @@ type Ant struct {
 	X       int
 	Y       int
 	Event   string
+
+	hive *Hive
+	dir  Dir
+	act  Act
 }
 
 type BotOder struct {
