@@ -13,6 +13,16 @@ func whatToDo(hive *Hive) map[int]BotOder {
 	for id, ant := range hive.Ants {
 		antPoint := point{y: ant.Y, x: ant.X}
 
+		if ant.unload() {
+			actions[id] = *ant.order
+			continue
+		}
+
+		if ant.consume() {
+			actions[id] = *ant.order
+			continue
+		}
+
 		homeDir, isHome := antPoint.isHomeAround(hive.Map, hive.Id)
 		if isHome && ant.Payload > 0 {
 			actions[id] = BotOder{Unload, homeDir}
@@ -45,32 +55,60 @@ func (a *Ant) unload() bool {
 	if a.Y > 0 &&
 		a.hive.Map.Cells[a.Y-1][a.X].Hive == a.hive.Id &&
 		a.hive.Map.Cells[a.Y-1][a.X].Ant == "" {
-		a.dir = Up
-		a.act = Unload
-		return true
-	}
-
-	if a.Y < a.hive.Map.Height-1 &&
-		a.hive.Map.Cells[a.Y+1][a.X].Hive == a.hive.Id &&
-		a.hive.Map.Cells[a.Y+1][a.X].Ant == "" {
-		a.dir = Down
-		a.act = Unload
+		a.order = &BotOder{Unload, Up}
 		return true
 	}
 
 	if a.X < a.hive.Map.Width-1 &&
 		a.hive.Map.Cells[a.Y][a.X+1].Hive == a.hive.Id &&
 		a.hive.Map.Cells[a.Y][a.X+1].Ant == "" {
-		a.dir = Right
-		a.act = Unload
+		a.order = &BotOder{Unload, Right}
+		return true
+	}
+
+	if a.Y < a.hive.Map.Height-1 &&
+		a.hive.Map.Cells[a.Y+1][a.X].Hive == a.hive.Id &&
+		a.hive.Map.Cells[a.Y+1][a.X].Ant == "" {
+		a.order = &BotOder{Unload, Down}
 		return true
 	}
 
 	if a.X > 0 &&
 		a.hive.Map.Cells[a.Y][a.X-1].Hive == a.hive.Id &&
 		a.hive.Map.Cells[a.Y][a.X-1].Ant == "" {
-		a.dir = Left
-		a.act = Unload
+		a.order = &BotOder{Unload, Left}
+		return true
+	}
+
+	return false
+}
+
+func (a *Ant) consume() bool {
+	if a.Y > 0 &&
+		a.hive.Map.Cells[a.Y-1][a.X].Food > 0 {
+		a.order = &BotOder{Load, Up}
+	}
+
+	if a.X < a.hive.Map.Width-1 &&
+		a.hive.Map.Cells[a.Y][a.X+1].Food > 0 {
+		a.order = &BotOder{Load, Right}
+	}
+
+	if a.Y < a.hive.Map.Height-1 &&
+		a.hive.Map.Cells[a.Y+1][a.X].Food > 0 {
+		a.order = &BotOder{Load, Down}
+	}
+
+	if a.X > 0 &&
+		a.hive.Map.Cells[a.Y][a.X-1].Food > 0 {
+		a.order = &BotOder{Load, Left}
+	}
+
+	if a.order != nil {
+		if a.Health < 9 {
+			// check that they don't eat from home
+			a.order.Act = Eat
+		}
 		return true
 	}
 
