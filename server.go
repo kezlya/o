@@ -15,9 +15,8 @@ type Hive struct {
 }
 
 type Map struct {
-	Width  int
-	Height int
-	Cells  [][]*Cell
+	Width, Height uint
+	Cells         [][]*Cell
 }
 
 type point struct {
@@ -32,13 +31,9 @@ type Cell struct {
 }
 
 type Ant struct {
-	Wasted  int
-	Age     int
-	Health  int
-	Payload int
-	X       int
-	Y       int
-	Event   string
+	Wasted, Age, Health int
+	Payload, X, Y       uint
+	Event               string
 
 	hive  *Hive
 	order *BotOder
