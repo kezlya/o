@@ -28,6 +28,7 @@ type Cell struct {
 	Food int    `json:"food,omitempty"`
 	Hive string `json:"hive,omitempty"`
 	Ant  string `json:"ant,omitempty"`
+	y, x uint
 }
 
 type Ant struct {
