@@ -105,7 +105,7 @@ func (a *Ant) move() {
 						break
 					}
 				}
-			} else if a.Payload < 5 { // whatever first home or food
+			} else if a.Payload > 5 { // whatever first home or food
 				if cell.Hive == a.hive.Id || cell.Food > 0 {
 					if a.direction(cell.y, cell.x) {
 						break
