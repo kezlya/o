@@ -82,7 +82,7 @@ func (a *Ant) consume() bool {
 
 	if a.X < a.hive.Map.Width-1 &&
 		a.hive.Map.Cells[a.Y][a.X+1].Food > 0 &&
-		a.hive.Map.Cells[a.Y-1][a.X].Hive == "" {
+		a.hive.Map.Cells[a.Y][a.X+1].Hive == "" {
 		order.Dir = Right
 		a.order = &order
 		return true
@@ -90,7 +90,7 @@ func (a *Ant) consume() bool {
 
 	if a.Y < a.hive.Map.Height-1 &&
 		a.hive.Map.Cells[a.Y+1][a.X].Food > 0 &&
-		a.hive.Map.Cells[a.Y-1][a.X].Hive == "" {
+		a.hive.Map.Cells[a.Y+1][a.X].Hive == "" {
 		order.Dir = Down
 		a.order = &order
 		return true
@@ -98,7 +98,7 @@ func (a *Ant) consume() bool {
 
 	if a.X > 0 &&
 		a.hive.Map.Cells[a.Y][a.X-1].Food > 0 &&
-		a.hive.Map.Cells[a.Y-1][a.X].Hive == "" {
+		a.hive.Map.Cells[a.Y][a.X-1].Hive == "" {
 		order.Dir = Left
 		a.order = &order
 		return true
