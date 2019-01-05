@@ -1,5 +1,7 @@
 package main
 
+import "log"
+
 func main() {
 	StartServer()
 }
@@ -22,6 +24,7 @@ func whatToDo(hive *Hive) map[int]BotOder {
 
 		ant.move()
 		if ant.order != nil {
+			log.Println(ant.Y, ant.X, ant.Wasted)
 			actions[id] = *ant.order
 		}
 	}
