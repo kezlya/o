@@ -1,7 +1,5 @@
 package main
 
-import "log"
-
 func main() {
 	StartServer()
 }
@@ -24,7 +22,6 @@ func whatToDo(hive *Hive) map[int]BotOder {
 
 		ant.move()
 		if ant.order != nil {
-			log.Println(ant.Y, ant.X, ant.Wasted)
 			actions[id] = *ant.order
 		}
 	}
@@ -65,31 +62,45 @@ func (a *Ant) unload() bool {
 }
 
 func (a *Ant) consume() bool {
+	order := BotOder{}
+
+	if a.Health < 9 {
+		order.Act = Eat
+	} else if a.Payload < 9 {
+		order.Act = Load
+	} else {
+		return false
+	}
+
 	if a.Y > 0 &&
-		a.hive.Map.Cells[a.Y-1][a.X].Food > 0 {
-		a.order = &BotOder{Load, Up}
+		a.hive.Map.Cells[a.Y-1][a.X].Food > 0 &&
+		a.hive.Map.Cells[a.Y-1][a.X].Hive == "" {
+		order.Dir = Up
+		a.order = &order
+		return true
 	}
 
 	if a.X < a.hive.Map.Width-1 &&
-		a.hive.Map.Cells[a.Y][a.X+1].Food > 0 {
-		a.order = &BotOder{Load, Right}
+		a.hive.Map.Cells[a.Y][a.X+1].Food > 0 &&
+		a.hive.Map.Cells[a.Y-1][a.X].Hive == "" {
+		order.Dir = Right
+		a.order = &order
+		return true
 	}
 
 	if a.Y < a.hive.Map.Height-1 &&
-		a.hive.Map.Cells[a.Y+1][a.X].Food > 0 {
-		a.order = &BotOder{Load, Down}
+		a.hive.Map.Cells[a.Y+1][a.X].Food > 0 &&
+		a.hive.Map.Cells[a.Y-1][a.X].Hive == "" {
+		order.Dir = Down
+		a.order = &order
+		return true
 	}
 
 	if a.X > 0 &&
-		a.hive.Map.Cells[a.Y][a.X-1].Food > 0 {
-		a.order = &BotOder{Load, Left}
-	}
-
-	if a.order != nil {
-		if a.Health < 9 {
-			// check that they don't eat from home
-			a.order.Act = Eat
-		}
+		a.hive.Map.Cells[a.Y][a.X-1].Food > 0 &&
+		a.hive.Map.Cells[a.Y-1][a.X].Hive == "" {
+		order.Dir = Left
+		a.order = &order
 		return true
 	}
 
