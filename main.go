@@ -94,7 +94,7 @@ func (a *Ant) consume() bool {
 }
 
 func (a *Ant) move() {
-	zoom := 2
+	zoom := 1
 	ring := a.hive.Map.around(a.Y, a.X, zoom)
 
 	for len(ring) > 0 && a.order == nil {
