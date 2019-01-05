@@ -112,7 +112,7 @@ func (a *Ant) move() {
 					}
 				}
 			} else { // search for food
-				if cell.Hive == "" || cell.Food > 0 {
+				if cell.Hive == "" && cell.Food > 0 {
 					if a.direction(cell.y, cell.x) {
 						break
 					}
