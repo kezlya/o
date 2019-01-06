@@ -3,6 +3,7 @@ package main
 type Map struct {
 	Width, Height int
 	Cells         [][]*Cell
+	objects       []*Object
 }
 
 type Cell struct {
@@ -34,18 +35,18 @@ func (f *Object) distance(y, x int) int {
 	return w + h
 }
 
-func (m *Map) getObjects(id string) []Object {
-	all := make([]Object, 0)
+func (m *Map) getObjects(id string) {
+	all := make([]*Object, 0)
 	for y, row := range m.Cells {
 		for x, c := range row {
 			if c.Hive == id {
-				all = append(all, Object{y: y, x: x, hive: true})
+				all = append(all, &Object{y: y, x: x, hive: true})
 				continue
 			}
 			if c.Food > 0 {
-				all = append(all, Object{y: y, x: x, food: c.Food})
+				all = append(all, &Object{y: y, x: x, food: c.Food})
 			}
 		}
 	}
-	return all
+	m.objects = all
 }

@@ -1,10 +1,9 @@
 package main
 
 type Hive struct {
-	Id      string
-	Ants    map[int]*Ant
-	Map     *Map
-	allFood []Object
+	Id   string
+	Ants map[int]*Ant
+	Map  *Map
 }
 
 func main() {
@@ -119,22 +118,26 @@ func (a *Ant) move() {
 	shortest := 9999999
 	var firstTarget *Object
 	var secondTarget *Object
-	for _, f := range a.hive.allFood {
-		if a.Payload == 9 && !f.hive { // move home
+	for _, object := range a.hive.Map.objects {
+		if a.Payload == 9 && !object.hive { // move home
 			continue
 		}
 
-		if a.Payload < 5 && f.hive { // search for food
+		if a.Payload < 5 && object.hive { // search for food
 			continue
 		}
 
-		s := f.distance(a.Y, a.X)
+		s := object.distance(a.Y, a.X)
+		if s == 0 {
+			continue
+		}
+
 		if s < shortest {
 			shortest = s
-			if !f.used {
-				firstTarget = &f
+			if !object.used {
+				firstTarget = object
 			} else {
-				secondTarget = &f
+				secondTarget = object
 			}
 		}
 	}

@@ -37,7 +37,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	hive.allFood = hive.Map.getObjects(hive.Id)
+	hive.Map.getObjects(hive.Id)
 	actions := whatToDo(&hive)
 
 	output, err := json.Marshal(actions)
