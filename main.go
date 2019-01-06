@@ -1,12 +1,19 @@
 package main
 
+type Hive struct {
+	Id      string
+	Ants    map[int]*Ant
+	Map     *Map
+	allFood []Object
+}
+
 func main() {
 	StartServer()
 }
 
-func whatToDo(hive *Hive) map[int]BotOder {
+func whatToDo(hive *Hive) map[int]AntOder {
 
-	actions := make(map[int]BotOder)
+	actions := make(map[int]AntOder)
 	for id, ant := range hive.Ants {
 		ant.hive = hive
 
@@ -33,28 +40,28 @@ func (a *Ant) unload() bool {
 	if a.Payload > 0 && a.Y > 0 &&
 		a.hive.Map.Cells[a.Y-1][a.X].Hive == a.hive.Id &&
 		a.hive.Map.Cells[a.Y-1][a.X].Ant == "" {
-		a.order = &BotOder{Unload, Up}
+		a.order = &AntOder{Unload, Up}
 		return true
 	}
 
 	if a.Payload > 0 && a.X < a.hive.Map.Width-1 &&
 		a.hive.Map.Cells[a.Y][a.X+1].Hive == a.hive.Id &&
 		a.hive.Map.Cells[a.Y][a.X+1].Ant == "" {
-		a.order = &BotOder{Unload, Right}
+		a.order = &AntOder{Unload, Right}
 		return true
 	}
 
 	if a.Payload > 0 && a.Y < a.hive.Map.Height-1 &&
 		a.hive.Map.Cells[a.Y+1][a.X].Hive == a.hive.Id &&
 		a.hive.Map.Cells[a.Y+1][a.X].Ant == "" {
-		a.order = &BotOder{Unload, Down}
+		a.order = &AntOder{Unload, Down}
 		return true
 	}
 
 	if a.Payload > 0 && a.X > 0 &&
 		a.hive.Map.Cells[a.Y][a.X-1].Hive == a.hive.Id &&
 		a.hive.Map.Cells[a.Y][a.X-1].Ant == "" {
-		a.order = &BotOder{Unload, Left}
+		a.order = &AntOder{Unload, Left}
 		return true
 	}
 
@@ -62,7 +69,7 @@ func (a *Ant) unload() bool {
 }
 
 func (a *Ant) consume() bool {
-	order := BotOder{}
+	order := AntOder{}
 
 	if a.Health < 9 {
 		order.Act = Eat
@@ -108,86 +115,35 @@ func (a *Ant) consume() bool {
 }
 
 func (a *Ant) move() {
-	zoom := 1
-	ring := a.hive.Map.around(a.Y, a.X, zoom)
 
-	for len(ring) > 0 && a.order == nil {
-		for _, cell := range ring {
-			if a.Payload == 9 { // go home
-				if cell.Hive == a.hive.Id {
-					if a.direction(cell.y, cell.x) {
-						break
-					}
-				}
-			} else if a.Payload > 5 { // whatever first home or food
-				if cell.Hive == a.hive.Id || cell.Food > 0 {
-					if a.direction(cell.y, cell.x) {
-						break
-					}
-				}
-			} else { // search for food
-				if cell.Hive == "" && cell.Food > 0 {
-					if a.direction(cell.y, cell.x) {
-						break
-					}
-				}
-			}
+	shortest := 9999999
+	var firstTarget *Object
+	var secondTarget *Object
+	for _, f := range a.hive.allFood {
+		if a.Payload == 9 && !f.hive { // move home
+			continue
 		}
-		zoom++
-		ring = a.hive.Map.around(a.Y, a.X, zoom)
-	}
-}
 
-func (m *Map) around(oy, ox uint, zoom int) []*Cell {
-	ring := make([]*Cell, 0)
-	for y := -zoom; y <= zoom; y++ {
-		for x := -zoom; x <= zoom; x++ {
-			if y == 0 && x == 0 {
-				continue
-			}
-			c := m.isValid(uint(y)+oy, uint(x)+ox)
-			if c != nil {
-				ring = append(ring, c)
+		if a.Payload < 5 && f.hive { // search for food
+			continue
+		}
+
+		s := f.distance(a.Y, a.X)
+		if s < shortest {
+			shortest = s
+			if !f.used {
+				firstTarget = &f
+			} else {
+				secondTarget = &f
 			}
 		}
 	}
-	return ring
-}
 
-func (m *Map) isValid(y, x uint) *Cell {
-	if y < m.Height && x < m.Width {
-		m.Cells[y][x].y = y
-		m.Cells[y][x].x = x
-		return m.Cells[y][x]
-	}
-	return nil
-}
-
-//TODO: check for future occupied cells by my ants
-func (a *Ant) direction(dy, dx uint) bool {
-	if a.X < dx && a.canMove(a.Y, a.X+1) {
-		a.order = &BotOder{Move, Right}
-		return true
+	if firstTarget != nil && a.direction(firstTarget.y, firstTarget.x) {
+		return
 	}
 
-	if a.Y < dy && a.canMove(a.Y+1, a.X) {
-		a.order = &BotOder{Move, Down}
-		return true
+	if secondTarget != nil {
+		a.direction(secondTarget.y, secondTarget.x)
 	}
-
-	if a.X > dx && a.canMove(a.Y, a.X-1) {
-		a.order = &BotOder{Move, Left}
-		return true
-	}
-
-	if a.Y > dy && a.canMove(a.Y-1, a.X) {
-		a.order = &BotOder{Move, Up}
-		return true
-	}
-	return false
-}
-
-func (a *Ant) canMove(dy, dx uint) bool {
-	return (a.hive.Map.Cells[dy][dx].Hive == "" || a.hive.Map.Cells[dy][dx].Hive == a.hive.Id) &&
-		a.hive.Map.Cells[dy][dx].Food == 0 && a.hive.Map.Cells[dy][dx].Ant == ""
 }

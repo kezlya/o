@@ -8,61 +8,6 @@ import (
 	"net/http"
 )
 
-type Hive struct {
-	Id   string
-	Ants map[int]*Ant
-	Map  *Map
-}
-
-type Map struct {
-	Width, Height uint
-	Cells         [][]*Cell
-}
-
-type point struct {
-	x int
-	y int
-}
-
-type Cell struct {
-	Food int    `json:"food,omitempty"`
-	Hive string `json:"hive,omitempty"`
-	Ant  string `json:"ant,omitempty"`
-	y, x uint
-}
-
-type Ant struct {
-	Wasted, Age, Health int
-	Payload, X, Y       uint
-	Event               string
-
-	hive  *Hive
-	order *BotOder
-}
-
-type BotOder struct {
-	Act
-	Dir
-}
-
-type Act string
-
-const (
-	Move   Act = "move"
-	Load   Act = "load"
-	Unload Act = "unload"
-	Eat    Act = "eat"
-)
-
-type Dir string
-
-const (
-	Up    Dir = "up"
-	Right Dir = "right"
-	Down  Dir = "down"
-	Left  Dir = "left"
-)
-
 func StartServer() {
 	http.HandleFunc("/", handler)
 	err := http.ListenAndServe(":7070", nil)
@@ -85,14 +30,14 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var hive Hive
-	//fmt.Println(string(data))
 	err = json.Unmarshal(data, &hive)
 	if err != nil {
-		fmt.Println("Fail to convrt json to object", err)
+		fmt.Println("Fail to convrt json to Object", err)
 		http.Error(w, err.Error(), 503)
 		return
 	}
 
+	hive.allFood = hive.Map.getObjects(hive.Id)
 	actions := whatToDo(&hive)
 
 	output, err := json.Marshal(actions)
