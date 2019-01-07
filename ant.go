@@ -17,6 +17,7 @@ type AntOder struct {
 type Act string
 
 const (
+	Stay   Act = "stay"
 	Move   Act = "move"
 	Load   Act = "load"
 	Unload Act = "unload"

@@ -143,11 +143,15 @@ func (a *Ant) move() {
 		}
 	}
 
-	if firstTarget != nil && a.direction(firstTarget.y, firstTarget.x) {
+	if firstTarget != nil &&
+		a.direction(firstTarget.y, firstTarget.x) {
 		return
 	}
 
-	if secondTarget != nil {
-		a.direction(secondTarget.y, secondTarget.x)
+	if secondTarget != nil &&
+		a.direction(secondTarget.y, secondTarget.x) {
+		return
 	}
+
+	a.order = &AntOder{Act: Stay}
 }
