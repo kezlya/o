@@ -1,6 +1,7 @@
 package main
 
 type Hive struct {
+	Tick int
 	Id   string
 	Ants map[int]*Ant
 	Map  *Map
