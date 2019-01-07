@@ -135,6 +135,7 @@ func (a *Ant) move() {
 		if s < shortest {
 			shortest = s
 			if !object.used {
+				secondTarget = firstTarget
 				firstTarget = object
 			} else {
 				secondTarget = object
