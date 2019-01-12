@@ -50,3 +50,15 @@ func (m *Map) getObjects(id string) {
 	}
 	m.objects = all
 }
+
+func (m *Map) isEatable(y, x int, id string) bool {
+	return y > 0 && x > 0 &&
+		y < m.Height-1 && x < m.Width-1 &&
+		m.Cells[y][x].Food > 0 &&
+		(m.Cells[y][x].Hive == "" || m.Cells[y][x].Hive == id)
+}
+
+func (m *Map) isEmpty(y, x int, id string) bool {
+	return m.Cells[y][x].Food == 0 && m.Cells[y][x].Ant == "" &&
+		(m.Cells[y][x].Hive == "" || m.Cells[y][x].Hive == id)
+}
