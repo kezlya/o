@@ -43,7 +43,7 @@ func (m *Map) getObjects(id string) {
 				all = append(all, &Object{y: y, x: x, hive: true})
 				continue
 			}
-			if c.Food > 0 {
+			if c.Food > 0 && (c.Hive == "" || c.Hive == id) {
 				all = append(all, &Object{y: y, x: x, food: c.Food})
 			}
 		}
