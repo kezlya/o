@@ -100,25 +100,25 @@ func (a *Ant) consume() bool {
 		return false
 	}
 
-	if a.hive.Map.isEatable(a.Y-1, a.X, a.hive.Id) {
+	if a.hive.Map.isEatable(a.Y-1, a.X, a.hive.Id, order.Act) {
 		order.Dir = Up
 		a.order = &order
 		return true
 	}
 
-	if a.hive.Map.isEatable(a.Y, a.X+1, a.hive.Id) {
+	if a.hive.Map.isEatable(a.Y, a.X+1, a.hive.Id, order.Act) {
 		order.Dir = Right
 		a.order = &order
 		return true
 	}
 
-	if a.hive.Map.isEatable(a.Y+1, a.X, a.hive.Id) {
+	if a.hive.Map.isEatable(a.Y+1, a.X, a.hive.Id, order.Act) {
 		order.Dir = Down
 		a.order = &order
 		return true
 	}
 
-	if a.hive.Map.isEatable(a.Y, a.X-1, a.hive.Id) {
+	if a.hive.Map.isEatable(a.Y, a.X-1, a.hive.Id, order.Act) {
 		order.Dir = Left
 		a.order = &order
 		return true
