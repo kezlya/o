@@ -46,8 +46,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Print("Tick:", hive.Tick, " ")
-	fmt.Println(string(output))
+	//	fmt.Print("Tick:", hive.Tick, " ")
+	// fmt.Println(string(output))
 
 	w.Header().Set("content-type", "application/json")
 	w.Write(output)
