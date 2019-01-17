@@ -3,17 +3,45 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/valyala/fasthttp"
 	"io/ioutil"
 	"log"
 	"net/http"
 )
 
 func StartServer() {
-	http.HandleFunc("/", handler)
-	err := http.ListenAndServe(":7070", nil)
-	if err != nil {
-		log.Fatal("ListenAndServe: ", err)
+	h := requestHandler
+
+	if err := fasthttp.ListenAndServe(":7070", h); err != nil {
+		log.Fatalf("Error in ListenAndServe: %s", err)
 	}
+
+}
+
+func requestHandler(ctx *fasthttp.RequestCtx) {
+	ctx.SetContentType("content-type; application/json")
+
+	//fmt.Println("Connection at ", ctx.ConnTime())
+	//fmt.Println("Request has been started at ", ctx.Time())
+	//fmt.Println("Serial request number for the current connection is", ctx.ConnRequestNum())
+
+	body := ctx.Request.Body()
+
+	var hive Hive
+	err := json.Unmarshal(body, &hive)
+	if err != nil {
+		fmt.Println("Fail to convrt json to Object", err)
+		return
+	}
+
+	hive.Map.getObjects(hive.Id)
+	actions := whatToDo(&hive)
+
+	output, err := json.Marshal(actions)
+	if err != nil {
+		return
+	}
+	ctx.Write(output)
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
@@ -46,8 +74,8 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//	fmt.Print("Tick:", hive.Tick, " ")
-	// fmt.Println(string(output))
+	fmt.Print("Tick:", hive.Tick, " ")
+	fmt.Println(string(output))
 
 	w.Header().Set("content-type", "application/json")
 	w.Write(output)
