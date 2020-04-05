@@ -1,37 +1,37 @@
 package main
 
-type Hive struct {
-	Tick int
-	Id   string
-	Ants map[int]*Ant
-	Map  *Map
-}
+import "github.com/kezlya/anthive"
+
+var id string
+var canvas *anthive.Canvas
 
 func main() {
 	StartServer()
 }
 
-func whatToDo(hive *Hive) map[int]AntOder {
-
-	actions := make(map[int]AntOder)
-	for id, ant := range hive.Ants {
-		ant.hive = hive
-
-		if ant.unload() {
-			actions[id] = *ant.order
+func whatToDo(request *anthive.BotRequest) map[uint16]*anthive.Order {
+	orders := make(map[uint16]*anthive.Order, 0)
+	for id, ant := range request.Ants {
+		if ok, order := tryUnload(ant); ok {
+			orders[id] = order
 			continue
 		}
 
-		if ant.consume() {
-			actions[id] = *ant.order
+		if ok, order := tryConsume(ant); ok {
+			orders[id] = order
 			continue
 		}
 
-		ant.move()
-		if ant.order != nil {
-			actions[id] = *ant.order
+		if ok, order := tryMove(ant); ok {
+			orders[id] = order
+			continue
+		}
+
+		orders[id] = &anthive.Order{
+			Action:    anthive.ActionStay,
+			Direction: anthive.DirectionDown,
 		}
 	}
 
-	return actions
+	return orders
 }

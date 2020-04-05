@@ -1,138 +1,83 @@
 package main
 
-type Ant struct {
-	Wasted, Age, Health int
-	Payload, X, Y       int
-	Event               string
+import "github.com/kezlya/anthive"
 
-	hive  *Hive
-	order *AntOder
-}
-
-type AntOder struct {
-	Act
-	Dir
-}
-
-type Act string
-
-const (
-	Stay   Act = "stay"
-	Move   Act = "move"
-	Load   Act = "load"
-	Unload Act = "unload"
-	Eat    Act = "eat"
-)
-
-type Dir string
-
-const (
-	Up    Dir = "up"
-	Right Dir = "right"
-	Down  Dir = "down"
-	Left  Dir = "left"
-)
-
-//TODO: check for future occupied cells by my ants
-func (a *Ant) direction(dy, dx int) bool {
-	if a.X < dx && a.hive.Map.isEmpty(a.Y, a.X+1, a.hive.Id) {
-		a.order = &AntOder{Move, Right}
-		return true
-	}
-
-	if a.Y < dy && a.hive.Map.isEmpty(a.Y+1, a.X, a.hive.Id) {
-		a.order = &AntOder{Move, Down}
-		return true
-	}
-
-	if a.X > dx && a.hive.Map.isEmpty(a.Y, a.X-1, a.hive.Id) {
-		a.order = &AntOder{Move, Left}
-		return true
-	}
-
-	if a.Y > dy && a.hive.Map.isEmpty(a.Y-1, a.X, a.hive.Id) {
-		a.order = &AntOder{Move, Up}
-		return true
-	}
-	return false
-}
-
-func (a *Ant) unload() bool {
+func tryUnload(a *anthive.Ant) (bool, *anthive.Order) {
 	if a.Payload > 0 && a.Y > 0 &&
-		a.hive.Map.Cells[a.Y-1][a.X].Hive == a.hive.Id &&
-		a.hive.Map.Cells[a.Y-1][a.X].Ant == "" {
-		a.order = &AntOder{Unload, Up}
-		return true
+		canvas.Cells[a.Y-1][a.X].Hive == id &&
+		canvas.Cells[a.Y-1][a.X].Ant == "" {
+		return true, &anthive.Order{
+			Action:    anthive.ActionUnload,
+			Direction: anthive.DirectionUp}
 	}
 
-	if a.Payload > 0 && a.X < a.hive.Map.Width-1 &&
-		a.hive.Map.Cells[a.Y][a.X+1].Hive == a.hive.Id &&
-		a.hive.Map.Cells[a.Y][a.X+1].Ant == "" {
-		a.order = &AntOder{Unload, Right}
-		return true
+	if a.Payload > 0 && a.X < canvas.Width-1 &&
+		canvas.Cells[a.Y][a.X+1].Hive == id &&
+		canvas.Cells[a.Y][a.X+1].Ant == "" {
+		return true, &anthive.Order{
+			Action:    anthive.ActionUnload,
+			Direction: anthive.DirectionRight}
 	}
 
-	if a.Payload > 0 && a.Y < a.hive.Map.Height-1 &&
-		a.hive.Map.Cells[a.Y+1][a.X].Hive == a.hive.Id &&
-		a.hive.Map.Cells[a.Y+1][a.X].Ant == "" {
-		a.order = &AntOder{Unload, Down}
-		return true
+	if a.Payload > 0 && a.Y < canvas.Height-1 &&
+		canvas.Cells[a.Y+1][a.X].Hive == id &&
+		canvas.Cells[a.Y+1][a.X].Ant == "" {
+		return true, &anthive.Order{
+			Action:    anthive.ActionUnload,
+			Direction: anthive.DirectionDown}
 	}
 
 	if a.Payload > 0 && a.X > 0 &&
-		a.hive.Map.Cells[a.Y][a.X-1].Hive == a.hive.Id &&
-		a.hive.Map.Cells[a.Y][a.X-1].Ant == "" {
-		a.order = &AntOder{Unload, Left}
-		return true
+		canvas.Cells[a.Y][a.X-1].Hive == id &&
+		canvas.Cells[a.Y][a.X-1].Ant == "" {
+		return true, &anthive.Order{
+			Action:    anthive.ActionUnload,
+			Direction: anthive.DirectionLeft}
 	}
 
-	return false
+	return false, nil
 }
 
-func (a *Ant) consume() bool {
-	order := AntOder{}
+func tryConsume(a *anthive.Ant) (bool, *anthive.Order) {
+	order := &anthive.Order{}
 
 	if a.Health < 9 {
-		order.Act = Eat
+		order.Action = anthive.ActionEat
 	} else if a.Payload < 9 {
-		order.Act = Load
+		order.Action = anthive.ActionLoad
 	} else {
-		return false
+		return false, nil
 	}
 
-	if a.hive.Map.isEatable(a.Y-1, a.X, a.hive.Id, order.Act) {
-		order.Dir = Up
-		a.order = &order
-		return true
+	if isFood(int(a.Y)-1, int(a.X), order) {
+		order.Direction = anthive.DirectionUp
+		return true, order
 	}
 
-	if a.hive.Map.isEatable(a.Y, a.X+1, a.hive.Id, order.Act) {
-		order.Dir = Right
-		a.order = &order
-		return true
+	if isFood(int(a.Y), int(a.X)+1, order) {
+		order.Direction = anthive.DirectionRight
+		return true, order
 	}
 
-	if a.hive.Map.isEatable(a.Y+1, a.X, a.hive.Id, order.Act) {
-		order.Dir = Down
-		a.order = &order
-		return true
+	if isFood(int(a.Y)+1, int(a.X), order) {
+		order.Direction = anthive.DirectionDown
+		return true, order
 	}
 
-	if a.hive.Map.isEatable(a.Y, a.X-1, a.hive.Id, order.Act) {
-		order.Dir = Left
-		a.order = &order
-		return true
+	if isFood(int(a.Y), int(a.X)-1, order) {
+		order.Direction = anthive.DirectionLeft
+		return true, order
 	}
 
-	return false
+	return false, nil
 }
 
-func (a *Ant) move() {
-
+func tryMove(a *anthive.Ant) (bool, *anthive.Order) {
+	objects := getObjects()
 	shortest := 9999999
 	var firstTarget *Object
 	var secondTarget *Object
-	for _, object := range a.hive.Map.objects {
+	for _, object := range objects {
 		if a.Payload == 9 && !object.hive { // move home
 			continue
 		}
@@ -141,7 +86,7 @@ func (a *Ant) move() {
 			continue
 		}
 
-		s := object.distance(a.Y, a.X)
+		s := object.distance(int(a.Y), int(a.X))
 		if s == 0 {
 			continue
 		}
@@ -157,15 +102,42 @@ func (a *Ant) move() {
 		}
 	}
 
-	if firstTarget != nil &&
-		a.direction(firstTarget.y, firstTarget.x) {
-		return
+	if firstTarget != nil {
+		return chooseDirection(a, firstTarget.y, firstTarget.x)
 	}
 
-	if secondTarget != nil &&
-		a.direction(secondTarget.y, secondTarget.x) {
-		return
+	if secondTarget != nil {
+		return chooseDirection(a, secondTarget.y, secondTarget.x)
 	}
 
-	a.order = &AntOder{Act: Stay}
+	return false, nil
+}
+
+//TODO: check for future occupied cells by my ants
+func chooseDirection(a *anthive.Ant, dy, dx int) (bool, *anthive.Order) {
+	if int(a.X) < dx && isEmpty(int(a.Y), int(a.X)+1) {
+		return true, &anthive.Order{
+			Action:    anthive.ActionMove,
+			Direction: anthive.DirectionRight}
+	}
+
+	if int(a.Y) < dy && isEmpty(int(a.Y)+1, int(a.X)) {
+		return true, &anthive.Order{
+			Action:    anthive.ActionMove,
+			Direction: anthive.DirectionDown}
+	}
+
+	if int(a.X) > dx && isEmpty(int(a.Y), int(a.X)-1) {
+		return true, &anthive.Order{
+			Action:    anthive.ActionMove,
+			Direction: anthive.DirectionLeft}
+	}
+
+	if int(a.Y) > dy && isEmpty(int(a.Y)-1, int(a.X)) {
+		return true, &anthive.Order{
+			Action:    anthive.ActionMove,
+			Direction: anthive.DirectionUp}
+	}
+
+	return false, nil
 }

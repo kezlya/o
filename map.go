@@ -1,16 +1,6 @@
 package main
 
-type Map struct {
-	Width, Height int
-	Cells         [][]*Cell
-	objects       []*Object
-}
-
-type Cell struct {
-	Food int    `json:"food,omitempty"`
-	Hive string `json:"hive,omitempty"`
-	Ant  string `json:"ant,omitempty"`
-}
+import "github.com/kezlya/anthive"
 
 type Object struct {
 	x, y, food int
@@ -35,9 +25,26 @@ func (f *Object) distance(y, x int) int {
 	return w + h
 }
 
-func (m *Map) getObjects(id string) {
+func isFood(y, x int, order *anthive.Order) bool {
+	if y >= 0 && x >= 0 &&
+		y < int(canvas.Height) && x < int(canvas.Width) &&
+		canvas.Cells[y][x].Food > 0 {
+		if order.Action == anthive.ActionLoad && canvas.Cells[y][x].Hive != "" {
+			return false
+		}
+		return true
+	}
+	return false
+}
+
+func isEmpty(y, x int) bool {
+	return canvas.Cells[y][x].Food == 0 && canvas.Cells[y][x].Ant == "" &&
+		(canvas.Cells[y][x].Hive == "" || canvas.Cells[y][x].Hive == id)
+}
+
+func getObjects() []*Object {
 	all := make([]*Object, 0)
-	for y, row := range m.Cells {
+	for y, row := range canvas.Cells {
 		for x, c := range row {
 			if c.Hive == id {
 				all = append(all, &Object{y: y, x: x, hive: true})
@@ -48,22 +55,5 @@ func (m *Map) getObjects(id string) {
 			}
 		}
 	}
-	m.objects = all
-}
-
-func (m *Map) isEatable(y, x int, id string, act Act) bool {
-	if y >= 0 && x >= 0 &&
-		y < m.Height && x < m.Width &&
-		m.Cells[y][x].Food > 0 {
-		if act == Load && m.Cells[y][x].Hive != "" {
-			return false
-		}
-		return true
-	}
-	return false
-}
-
-func (m *Map) isEmpty(y, x int, id string) bool {
-	return m.Cells[y][x].Food == 0 && m.Cells[y][x].Ant == "" &&
-		(m.Cells[y][x].Hive == "" || m.Cells[y][x].Hive == id)
+	return all
 }
