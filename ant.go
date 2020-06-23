@@ -2,34 +2,34 @@ package main
 
 import "github.com/kezlya/anthive"
 
-func tryUnload(a *anthive.Ant) (bool, *anthive.Order) {
-	if a.Payload > 0 && a.Y > 0 &&
-		canvas.Cells[a.Y-1][a.X].Hive == id &&
-		canvas.Cells[a.Y-1][a.X].Ant == "" {
+func tryUnload(a anthive.Ant) (bool, *anthive.Order) {
+	if a.Payload > 0 && a.Point.Y > 0 &&
+		canvas.Cells[a.Point.Y-1][a.Point.X].Hive == id &&
+		canvas.Cells[a.Point.Y-1][a.Point.X].Ant == "" {
 		return true, &anthive.Order{
 			Action:    anthive.ActionUnload,
 			Direction: anthive.DirectionUp}
 	}
 
-	if a.Payload > 0 && a.X < canvas.Width-1 &&
-		canvas.Cells[a.Y][a.X+1].Hive == id &&
-		canvas.Cells[a.Y][a.X+1].Ant == "" {
+	if a.Payload > 0 && a.Point.X < canvas.Width-1 &&
+		canvas.Cells[a.Point.Y][a.Point.X+1].Hive == id &&
+		canvas.Cells[a.Point.Y][a.Point.X+1].Ant == "" {
 		return true, &anthive.Order{
 			Action:    anthive.ActionUnload,
 			Direction: anthive.DirectionRight}
 	}
 
-	if a.Payload > 0 && a.Y < canvas.Height-1 &&
-		canvas.Cells[a.Y+1][a.X].Hive == id &&
-		canvas.Cells[a.Y+1][a.X].Ant == "" {
+	if a.Payload > 0 && a.Point.Y < canvas.Height-1 &&
+		canvas.Cells[a.Point.Y+1][a.Point.X].Hive == id &&
+		canvas.Cells[a.Point.Y+1][a.Point.X].Ant == "" {
 		return true, &anthive.Order{
 			Action:    anthive.ActionUnload,
 			Direction: anthive.DirectionDown}
 	}
 
-	if a.Payload > 0 && a.X > 0 &&
-		canvas.Cells[a.Y][a.X-1].Hive == id &&
-		canvas.Cells[a.Y][a.X-1].Ant == "" {
+	if a.Payload > 0 && a.Point.X > 0 &&
+		canvas.Cells[a.Point.Y][a.Point.X-1].Hive == id &&
+		canvas.Cells[a.Point.Y][a.Point.X-1].Ant == "" {
 		return true, &anthive.Order{
 			Action:    anthive.ActionUnload,
 			Direction: anthive.DirectionLeft}
@@ -38,7 +38,7 @@ func tryUnload(a *anthive.Ant) (bool, *anthive.Order) {
 	return false, nil
 }
 
-func tryConsume(a *anthive.Ant) (bool, *anthive.Order) {
+func tryConsume(a anthive.Ant) (bool, *anthive.Order) {
 	order := &anthive.Order{}
 
 	if a.Health < 9 {
@@ -49,22 +49,22 @@ func tryConsume(a *anthive.Ant) (bool, *anthive.Order) {
 		return false, nil
 	}
 
-	if isFood(int(a.Y)-1, int(a.X), order) {
+	if isFood(a.Point.Y-1, a.Point.X, order) {
 		order.Direction = anthive.DirectionUp
 		return true, order
 	}
 
-	if isFood(int(a.Y), int(a.X)+1, order) {
+	if isFood(a.Point.Y, a.Point.X+1, order) {
 		order.Direction = anthive.DirectionRight
 		return true, order
 	}
 
-	if isFood(int(a.Y)+1, int(a.X), order) {
+	if isFood(a.Point.Y+1, a.Point.X, order) {
 		order.Direction = anthive.DirectionDown
 		return true, order
 	}
 
-	if isFood(int(a.Y), int(a.X)-1, order) {
+	if isFood(a.Point.Y, a.Point.X-1, order) {
 		order.Direction = anthive.DirectionLeft
 		return true, order
 	}
@@ -72,9 +72,9 @@ func tryConsume(a *anthive.Ant) (bool, *anthive.Order) {
 	return false, nil
 }
 
-func tryMove(a *anthive.Ant) (bool, *anthive.Order) {
+func tryMove(a anthive.Ant) (bool, *anthive.Order) {
 	objects := getObjects()
-	shortest := 9999999
+	var shortest uint = 9999999
 	var firstTarget *Object
 	var secondTarget *Object
 	for _, object := range objects {
@@ -86,7 +86,7 @@ func tryMove(a *anthive.Ant) (bool, *anthive.Order) {
 			continue
 		}
 
-		s := object.distance(int(a.Y), int(a.X))
+		s := object.distance(a.Point.Y, a.Point.X)
 		if s == 0 {
 			continue
 		}
@@ -114,26 +114,26 @@ func tryMove(a *anthive.Ant) (bool, *anthive.Order) {
 }
 
 //TODO: check for future occupied cells by my ants
-func chooseDirection(a *anthive.Ant, dy, dx int) (bool, *anthive.Order) {
-	if int(a.X) < dx && isEmpty(int(a.Y), int(a.X)+1) {
+func chooseDirection(a anthive.Ant, dy, dx uint) (bool, *anthive.Order) {
+	if a.Point.X < dx && isEmpty(a.Point.Y, a.Point.X+1) {
 		return true, &anthive.Order{
 			Action:    anthive.ActionMove,
 			Direction: anthive.DirectionRight}
 	}
 
-	if int(a.Y) < dy && isEmpty(int(a.Y)+1, int(a.X)) {
+	if a.Point.Y < dy && isEmpty(a.Point.Y+1, a.Point.X) {
 		return true, &anthive.Order{
 			Action:    anthive.ActionMove,
 			Direction: anthive.DirectionDown}
 	}
 
-	if int(a.X) > dx && isEmpty(int(a.Y), int(a.X)-1) {
+	if a.Point.X > dx && isEmpty(a.Point.Y, a.Point.X-1) {
 		return true, &anthive.Order{
 			Action:    anthive.ActionMove,
 			Direction: anthive.DirectionLeft}
 	}
 
-	if int(a.Y) > dy && isEmpty(int(a.Y)-1, int(a.X)) {
+	if a.Point.Y > dy && isEmpty(a.Point.Y-1, a.Point.X) {
 		return true, &anthive.Order{
 			Action:    anthive.ActionMove,
 			Direction: anthive.DirectionUp}

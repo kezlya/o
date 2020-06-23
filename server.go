@@ -19,14 +19,14 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	ctx.SetContentType("content-type; application/json")
 	body := ctx.Request.Body()
 
-	var request anthive.BotRequest
+	var request anthive.Request
 	err := json.Unmarshal(body, &request)
 	if err != nil {
 		fmt.Println("Fail to convrt json to Object", err)
 		return
 	}
 
-	id = request.ID
+	id = request.Id
 	canvas = request.Canvas
 	actions := whatToDo(&request)
 
