@@ -28,9 +28,11 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 
 	id = request.Id
 	canvas = request.Canvas
-	actions := whatToDo(&request)
+	orders := whatToDo(&request)
+	log.Println(orders)
+	response := anthive.Response{Orders: orders}
 
-	output, err := json.Marshal(actions)
+	output, err := json.Marshal(response)
 	if err != nil {
 		return
 	}
