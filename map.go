@@ -1,7 +1,5 @@
 package main
 
-import "github.com/kezlya/anthive"
-
 type Object struct {
 	x, y, food uint
 	used, hive bool
@@ -25,11 +23,11 @@ func (f *Object) distance(y, x uint) uint {
 	return w + h
 }
 
-func isFood(y, x uint, order *anthive.Order) bool {
+func isFood(y, x uint, order *Order) bool {
 	if y >= 0 && x >= 0 &&
 		y < canvas.Height && x < canvas.Width &&
 		canvas.Cells[y][x].Food > 0 {
-		if order.Action == anthive.ActionLoad && canvas.Cells[y][x].Hive != "" {
+		if order.Action == ActionTake && canvas.Cells[y][x].Hive != "" {
 			return false
 		}
 		return true

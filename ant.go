@@ -1,78 +1,76 @@
 package main
 
-import "github.com/kezlya/anthive"
-
-func tryUnload(a anthive.Ant) (bool, *anthive.Order) {
+func tryUnload(a Ant) (bool, *Order) {
 	if a.Payload > 0 && a.Point.Y > 0 &&
 		canvas.Cells[a.Point.Y-1][a.Point.X].Hive == id &&
 		canvas.Cells[a.Point.Y-1][a.Point.X].Ant == "" {
-		return true, &anthive.Order{
-			Action:    anthive.ActionUnload,
-			Direction: anthive.DirectionUp}
+		return true, &Order{
+			Action:    ActionPut,
+			Direction: DirectionUp}
 	}
 
 	if a.Payload > 0 && a.Point.X < canvas.Width-1 &&
 		canvas.Cells[a.Point.Y][a.Point.X+1].Hive == id &&
 		canvas.Cells[a.Point.Y][a.Point.X+1].Ant == "" {
-		return true, &anthive.Order{
-			Action:    anthive.ActionUnload,
-			Direction: anthive.DirectionRight}
+		return true, &Order{
+			Action:    ActionPut,
+			Direction: DirectionRight}
 	}
 
 	if a.Payload > 0 && a.Point.Y < canvas.Height-1 &&
 		canvas.Cells[a.Point.Y+1][a.Point.X].Hive == id &&
 		canvas.Cells[a.Point.Y+1][a.Point.X].Ant == "" {
-		return true, &anthive.Order{
-			Action:    anthive.ActionUnload,
-			Direction: anthive.DirectionDown}
+		return true, &Order{
+			Action:    ActionPut,
+			Direction: DirectionDown}
 	}
 
 	if a.Payload > 0 && a.Point.X > 0 &&
 		canvas.Cells[a.Point.Y][a.Point.X-1].Hive == id &&
 		canvas.Cells[a.Point.Y][a.Point.X-1].Ant == "" {
-		return true, &anthive.Order{
-			Action:    anthive.ActionUnload,
-			Direction: anthive.DirectionLeft}
+		return true, &Order{
+			Action:    ActionPut,
+			Direction: DirectionLeft}
 	}
 
 	return false, nil
 }
 
-func tryConsume(a anthive.Ant) (bool, *anthive.Order) {
-	order := &anthive.Order{}
+func tryConsume(a Ant) (bool, *Order) {
+	order := &Order{}
 
 	if a.Health < 9 {
-		order.Action = anthive.ActionEat
+		order.Action = ActionEat
 	} else if a.Payload < 9 {
-		order.Action = anthive.ActionLoad
+		order.Action = ActionTake
 	} else {
 		return false, nil
 	}
 
 	if isFood(a.Point.Y-1, a.Point.X, order) {
-		order.Direction = anthive.DirectionUp
+		order.Direction = DirectionUp
 		return true, order
 	}
 
 	if isFood(a.Point.Y, a.Point.X+1, order) {
-		order.Direction = anthive.DirectionRight
+		order.Direction = DirectionRight
 		return true, order
 	}
 
 	if isFood(a.Point.Y+1, a.Point.X, order) {
-		order.Direction = anthive.DirectionDown
+		order.Direction = DirectionDown
 		return true, order
 	}
 
 	if isFood(a.Point.Y, a.Point.X-1, order) {
-		order.Direction = anthive.DirectionLeft
+		order.Direction = DirectionLeft
 		return true, order
 	}
 
 	return false, nil
 }
 
-func tryMove(a anthive.Ant) (bool, *anthive.Order) {
+func tryMove(a Ant) (bool, *Order) {
 	objects := getObjects()
 	var shortest uint = 9999999
 	var firstTarget *Object
@@ -114,29 +112,29 @@ func tryMove(a anthive.Ant) (bool, *anthive.Order) {
 }
 
 //TODO: check for future occupied cells by my ants
-func chooseDirection(a anthive.Ant, dy, dx uint) (bool, *anthive.Order) {
+func chooseDirection(a Ant, dy, dx uint) (bool, *Order) {
 	if a.Point.X < dx && isEmpty(a.Point.Y, a.Point.X+1) {
-		return true, &anthive.Order{
-			Action:    anthive.ActionMove,
-			Direction: anthive.DirectionRight}
+		return true, &Order{
+			Action:    ActionMove,
+			Direction: DirectionRight}
 	}
 
 	if a.Point.Y < dy && isEmpty(a.Point.Y+1, a.Point.X) {
-		return true, &anthive.Order{
-			Action:    anthive.ActionMove,
-			Direction: anthive.DirectionDown}
+		return true, &Order{
+			Action:    ActionMove,
+			Direction: DirectionDown}
 	}
 
 	if a.Point.X > dx && isEmpty(a.Point.Y, a.Point.X-1) {
-		return true, &anthive.Order{
-			Action:    anthive.ActionMove,
-			Direction: anthive.DirectionLeft}
+		return true, &Order{
+			Action:    ActionMove,
+			Direction: DirectionLeft}
 	}
 
 	if a.Point.Y > dy && isEmpty(a.Point.Y-1, a.Point.X) {
-		return true, &anthive.Order{
-			Action:    anthive.ActionMove,
-			Direction: anthive.DirectionUp}
+		return true, &Order{
+			Action:    ActionMove,
+			Direction: DirectionUp}
 	}
 
 	return false, nil

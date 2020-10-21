@@ -1,16 +1,14 @@
 package main
 
-import "github.com/kezlya/anthive"
-
 var id string
-var canvas anthive.Canvas
+var canvas Canvas
 
 func main() {
 	StartServer()
 }
 
-func whatToDo(request *anthive.Request) []anthive.Order {
-	orders := make([]anthive.Order, 0)
+func whatToDo(request *Request) []Order {
+	orders := make([]Order, 0)
 	for _, ant := range request.Ants {
 		if ok, order := tryUnload(ant); ok {
 			order.AntId = ant.Id
@@ -29,10 +27,10 @@ func whatToDo(request *anthive.Request) []anthive.Order {
 			orders = append(orders, *order)
 			continue
 		}
-		order := anthive.Order{
+		order := Order{
 			AntId:     ant.Id,
-			Action:    anthive.ActionStay,
-			Direction: anthive.DirectionDown,
+			Action:    ActionStay,
+			Direction: DirectionDown,
 		}
 		orders = append(orders, order)
 	}
