@@ -12,13 +12,13 @@ type Response struct {
 }
 
 type Ant struct {
-	Id      uint   `json:"id"`
-	Event   string `json:"event"`
-	Errors  uint   `json:"errors"`
-	Age     uint   `json:"age"`
-	Health  uint   `json:"health"`
-	Payload uint   `json:"payload"`
-	Point   Point  `json:"point"`
+	Id     uint   `json:"id"`
+	Event  string `json:"event"`
+	Errors uint   `json:"errors"`
+	Age    uint   `json:"age"`
+	Health uint   `json:"health"`
+	Cargo  uint   `json:"cargo"`
+	Point  Point  `json:"point"`
 }
 
 type Order struct {
@@ -37,18 +37,6 @@ const DirectionUp = "up"
 const DirectionRight = "right"
 const DirectionDown = "down"
 const DirectionLeft = "left"
-
-const EventGood = "good"
-const EventBirth = "birth"
-const EventNoAction = "noaction"
-const EventSlow = "slow"
-const EventBadMove = "badmove"
-const EventBadLoad = "badload"
-const EventBadUnload = "badunload"
-const EventBadEat = "badeat"
-const EventCollision = "collision"
-const EventError = "error"
-const EventDeath = "death"
 
 type Map struct {
 	Canvas Canvas `json:"canvas"`

@@ -1,7 +1,7 @@
 package main
 
 func tryUnload(a Ant) (bool, *Order) {
-	if a.Payload > 0 && a.Point.Y > 0 &&
+	if a.Cargo > 0 && a.Point.Y > 0 &&
 		canvas.Cells[a.Point.Y-1][a.Point.X].Hive == id &&
 		canvas.Cells[a.Point.Y-1][a.Point.X].Ant == "" {
 		return true, &Order{
@@ -9,7 +9,7 @@ func tryUnload(a Ant) (bool, *Order) {
 			Direction: DirectionUp}
 	}
 
-	if a.Payload > 0 && a.Point.X < canvas.Width-1 &&
+	if a.Cargo > 0 && a.Point.X < canvas.Width-1 &&
 		canvas.Cells[a.Point.Y][a.Point.X+1].Hive == id &&
 		canvas.Cells[a.Point.Y][a.Point.X+1].Ant == "" {
 		return true, &Order{
@@ -17,7 +17,7 @@ func tryUnload(a Ant) (bool, *Order) {
 			Direction: DirectionRight}
 	}
 
-	if a.Payload > 0 && a.Point.Y < canvas.Height-1 &&
+	if a.Cargo > 0 && a.Point.Y < canvas.Height-1 &&
 		canvas.Cells[a.Point.Y+1][a.Point.X].Hive == id &&
 		canvas.Cells[a.Point.Y+1][a.Point.X].Ant == "" {
 		return true, &Order{
@@ -25,7 +25,7 @@ func tryUnload(a Ant) (bool, *Order) {
 			Direction: DirectionDown}
 	}
 
-	if a.Payload > 0 && a.Point.X > 0 &&
+	if a.Cargo > 0 && a.Point.X > 0 &&
 		canvas.Cells[a.Point.Y][a.Point.X-1].Hive == id &&
 		canvas.Cells[a.Point.Y][a.Point.X-1].Ant == "" {
 		return true, &Order{
@@ -41,7 +41,7 @@ func tryConsume(a Ant) (bool, *Order) {
 
 	if a.Health < 9 {
 		order.Action = ActionEat
-	} else if a.Payload < 9 {
+	} else if a.Cargo < 9 {
 		order.Action = ActionTake
 	} else {
 		return false, nil
@@ -76,11 +76,11 @@ func tryMove(a Ant) (bool, *Order) {
 	var firstTarget *Object
 	var secondTarget *Object
 	for _, object := range objects {
-		if a.Payload == 9 && !object.hive { // move home
+		if a.Cargo == 9 && !object.hive { // move home
 			continue
 		}
 
-		if a.Payload < 5 && object.hive { // search for food
+		if a.Cargo < 5 && object.hive { // search for food
 			continue
 		}
 
