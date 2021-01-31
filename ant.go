@@ -81,10 +81,10 @@ func (a *Ant) tryConsume() (bool, *Order) {
 }
 
 func tryMove(a Ant) (bool, *Order) {
-	objects := getObjects()
+	objects := getTargets()
 	var shortest uint = 9999999
-	var firstTarget *Object
-	var secondTarget *Object
+	var firstTarget *Target
+	var secondTarget *Target
 	for _, object := range objects {
 		if a.Cargo == 9 && !object.hive { // move home
 			continue
