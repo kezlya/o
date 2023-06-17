@@ -1,6 +1,16 @@
 package main
 
-func tryUnload(a Ant) (bool, *Order) {
+type Ant struct {
+	Id     uint   `json:"id"`
+	Event  string `json:"event"`
+	Errors uint   `json:"errors"`
+	Age    uint   `json:"age"`
+	Health uint   `json:"health"`
+	Cargo  uint   `json:"cargo"`
+	Point  Point  `json:"point"`
+}
+
+func (a *Ant) tryUnload() (bool, *Order) {
 	if a.Cargo > 0 && a.Point.Y > 0 &&
 		canvas.Cells[a.Point.Y-1][a.Point.X].Hive == id &&
 		canvas.Cells[a.Point.Y-1][a.Point.X].Ant == "" {
@@ -36,7 +46,7 @@ func tryUnload(a Ant) (bool, *Order) {
 	return false, nil
 }
 
-func tryConsume(a Ant) (bool, *Order) {
+func (a *Ant) tryConsume() (bool, *Order) {
 	order := &Order{}
 
 	if a.Health < 9 {
@@ -71,10 +81,10 @@ func tryConsume(a Ant) (bool, *Order) {
 }
 
 func tryMove(a Ant) (bool, *Order) {
-	objects := getObjects()
+	objects := getTargets()
 	var shortest uint = 9999999
-	var firstTarget *Object
-	var secondTarget *Object
+	var firstTarget *Target
+	var secondTarget *Target
 	for _, object := range objects {
 		if a.Cargo == 9 && !object.hive { // move home
 			continue

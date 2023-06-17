@@ -10,13 +10,13 @@ func main() {
 func whatToDo(request *Request) []Order {
 	orders := make([]Order, 0)
 	for _, ant := range request.Ants {
-		if ok, order := tryUnload(ant); ok {
+		if ok, order := ant.tryUnload(); ok {
 			order.AntId = ant.Id
 			orders = append(orders, *order)
 			continue
 		}
 
-		if ok, order := tryConsume(ant); ok {
+		if ok, order := ant.tryConsume(); ok {
 			order.AntId = ant.Id
 			orders = append(orders, *order)
 			continue

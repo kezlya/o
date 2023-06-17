@@ -1,23 +1,23 @@
 package main
 
-type Object struct {
+type Target struct {
 	x, y, food uint
 	used, hive bool
 }
 
-func (f *Object) distance(y, x uint) uint {
+func (t *Target) distance(y, x uint) uint {
 	var w, h uint
 
-	if f.x > x {
-		w = f.x - x
+	if t.x > x {
+		w = t.x - x
 	} else {
-		w = x - f.x
+		w = x - t.x
 	}
 
-	if f.y > y {
-		h = f.y - y
+	if t.y > y {
+		h = t.y - y
 	} else {
-		h = y - f.y
+		h = y - t.y
 	}
 
 	return w + h
@@ -40,16 +40,16 @@ func isEmpty(y, x uint) bool {
 		(canvas.Cells[y][x].Hive == "" || canvas.Cells[y][x].Hive == id)
 }
 
-func getObjects() []*Object {
-	all := make([]*Object, 0)
+func getTargets() []*Target {
+	all := make([]*Target, 0)
 	for y, row := range canvas.Cells {
 		for x, c := range row {
 			if c.Hive == id {
-				all = append(all, &Object{y: uint(y), x: uint(x), hive: true})
+				all = append(all, &Target{y: uint(y), x: uint(x), hive: true})
 				continue
 			}
 			if c.Food > 0 && (c.Hive == "" || c.Hive == id) {
-				all = append(all, &Object{y: uint(y), x: uint(x), food: c.Food})
+				all = append(all, &Target{y: uint(y), x: uint(x), food: c.Food})
 			}
 		}
 	}

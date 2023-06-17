@@ -21,7 +21,7 @@ func requestHandler(ctx *fasthttp.RequestCtx) {
 	var request Request
 	err := json.Unmarshal(body, &request)
 	if err != nil {
-		fmt.Println("Fail to convrt json to Object", err)
+		fmt.Println("Fail to convrt json to Target", err)
 		return
 	}
 

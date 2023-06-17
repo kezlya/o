@@ -11,16 +11,6 @@ type Response struct {
 	Orders []Order `json:"orders"`
 }
 
-type Ant struct {
-	Id     uint   `json:"id"`
-	Event  string `json:"event"`
-	Errors uint   `json:"errors"`
-	Age    uint   `json:"age"`
-	Health uint   `json:"health"`
-	Cargo  uint   `json:"cargo"`
-	Point  Point  `json:"point"`
-}
-
 type Order struct {
 	AntId     uint   `json:"antId"`
 	Action    string `json:"act"`
